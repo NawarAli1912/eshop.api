@@ -79,7 +79,7 @@ namespace Persistence.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Customers", "Cust");
+                    b.ToTable("Customers", "cust");
                 });
 
             modelBuilder.Entity("Domain.Orders.Order", b =>
@@ -130,9 +130,96 @@ namespace Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Customers.Customer", b =>
+                {
+                    b.OwnsOne("Domain.Customers.Entities.Cart", "Cart", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("CartId");
+
+                            b1.Property<Guid>("CustomerId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.HasKey("Id", "CustomerId");
+
+                            b1.HasIndex("CustomerId")
+                                .IsUnique();
+
+                            b1.ToTable("CustomersCart", "cust");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CustomerId");
+
+                            b1.OwnsMany("Domain.Customers.Entities.CartItem", "Items", b2 =>
+                                {
+                                    b2.Property<Guid>("Id")
+                                        .HasColumnType("uniqueidentifier")
+                                        .HasColumnName("CartItemId");
+
+                                    b2.Property<Guid>("CartId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<Guid>("CustomerId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<Guid>("ProductId")
+                                        .HasColumnType("uniqueidentifier");
+
+                                    b2.Property<int>("Quantity")
+                                        .HasColumnType("int");
+
+                                    b2.HasKey("Id", "CartId", "CustomerId");
+
+                                    b2.HasIndex("CartId");
+
+                                    b2.HasIndex("CartId", "CustomerId");
+
+                                    b2.ToTable("CartItem", "cust");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("CartId", "CustomerId");
+
+                                    b2.OwnsOne("Domain.SharedKernel.ValueObjects.Money", "Price", b3 =>
+                                        {
+                                            b3.Property<Guid>("CartItemId")
+                                                .HasColumnType("uniqueidentifier");
+
+                                            b3.Property<Guid>("CartItemCartId")
+                                                .HasColumnType("uniqueidentifier");
+
+                                            b3.Property<Guid>("CartItemCustomerId")
+                                                .HasColumnType("uniqueidentifier");
+
+                                            b3.Property<decimal>("Amount")
+                                                .HasColumnType("decimal(10, 2)");
+
+                                            b3.Property<string>("Cureency")
+                                                .IsRequired()
+                                                .HasColumnType("nvarchar(max)");
+
+                                            b3.HasKey("CartItemId", "CartItemCartId", "CartItemCustomerId");
+
+                                            b3.ToTable("CartItem", "cust");
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("CartItemId", "CartItemCartId", "CartItemCustomerId");
+                                        });
+
+                                    b2.Navigation("Price")
+                                        .IsRequired();
+                                });
+
+                            b1.Navigation("Items");
+                        });
+
+                    b.Navigation("Cart")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Domain.Orders.Order", b =>
                 {
-                    b.OwnsMany("Domain.Orders.Order.LineItems#Domain.Orders.Entities.LineItem", "LineItems", b1 =>
+                    b.OwnsMany("Domain.Orders.Entities.LineItem", "LineItems", b1 =>
                         {
                             b1.Property<Guid>("Id")
                                 .HasColumnType("uniqueidentifier")
@@ -156,7 +243,7 @@ namespace Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
 
-                            b1.OwnsOne("Domain.Orders.Order.LineItems#Domain.Orders.Entities.LineItem.Price#Domain.SharedKernel.ValueObjects.Money", "Price", b2 =>
+                            b1.OwnsOne("Domain.SharedKernel.ValueObjects.Money", "Price", b2 =>
                                 {
                                     b2.Property<Guid>("LineItemId")
                                         .HasColumnType("uniqueidentifier");
@@ -188,7 +275,7 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Products.Product", b =>
                 {
-                    b.OwnsMany("Domain.Products.Product.CategoryIds#Domain.Categories.ValueObjects.CategoryId", "CategoryIds", b1 =>
+                    b.OwnsMany("Domain.Categories.ValueObjects.CategoryId", "CategoryIds", b1 =>
                         {
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
@@ -213,7 +300,40 @@ namespace Persistence.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsOne("Domain.Products.Product.Price#Domain.SharedKernel.ValueObjects.Money", "Price", b1 =>
+                    b.OwnsMany("Domain.Products.Entities.ProductReview", "Reviews", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ReviewId");
+
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Comment")
+                                .IsRequired()
+                                .HasMaxLength(256)
+                                .HasColumnType("nvarchar(256)");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("datetime2");
+
+                            b1.Property<Guid>("CustomerId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<DateTime>("ModifiedAt")
+                                .HasColumnType("datetime2");
+
+                            b1.HasKey("Id", "ProductId");
+
+                            b1.HasIndex("ProductId");
+
+                            b1.ToTable("ProductReviews", "prod");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.OwnsOne("Domain.SharedKernel.ValueObjects.Money", "Price", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
@@ -233,7 +353,7 @@ namespace Persistence.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsOne("Domain.Products.Product.SKU#Domain.Products.ValueObjects.SKU", "SKU", b1 =>
+                    b.OwnsOne("Domain.Products.ValueObjects.SKU", "SKU", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
@@ -254,6 +374,8 @@ namespace Persistence.Migrations
 
                     b.Navigation("Price")
                         .IsRequired();
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("SKU")
                         .IsRequired();

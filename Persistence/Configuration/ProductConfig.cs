@@ -1,4 +1,5 @@
-﻿using Domain.Products;
+﻿using Domain.Customers.ValueObjects;
+using Domain.Products;
 using Domain.Products.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -45,6 +46,35 @@ internal class ProductConfig : IEntityTypeConfiguration<Product>
                 .ValueGeneratedNever();
 
             cBuilder.HasKey("Id", "ProductId");
+        });
+
+        builder.OwnsMany(p => p.Reviews, rBuilder =>
+        {
+            rBuilder
+                .ToTable("ProductReviews", Schemas.Product);
+
+            rBuilder
+                .Property(review => review.Id)
+                .HasConversion(
+                    reviewId => reviewId.Value,
+                    value => ProductReviewId.Create(value))
+                .HasColumnName("ReviewId");
+
+            rBuilder
+                .WithOwner()
+                .HasForeignKey("ProductId");
+
+            rBuilder
+                .Property(review => review.CustomerId)
+                .HasConversion(
+                    customerId => customerId.Value,
+                    value => CustomerId.Create(value));
+
+            rBuilder.HasKey("Id", "ProductId");
+
+            rBuilder
+            .Property(p => p.Comment)
+            .HasMaxLength(256);
         });
     }
 }

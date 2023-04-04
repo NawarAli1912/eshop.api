@@ -1,4 +1,5 @@
 ﻿using Domain.Categories.ValueObjects;
+using Domain.Products.Entities;
 using Domain.Products.ValueObjects;
 using Domain.SharedKernel.ValueObjects;
 using System.Collections.Immutable;
@@ -8,6 +9,8 @@ namespace Domain.Products;
 public class Product
 {
     private readonly List<CategoryId> _categoryIds = new();
+
+    private readonly List<ProductReview> _reviews = new();
 
     public ProductId Id { get; private set; }
 
@@ -20,6 +23,8 @@ public class Product
     public Money Price { get; private set; }
 
     public IImmutableList<CategoryId> CategoryIds => _categoryIds.ToImmutableList();
+
+    public IImmutableList<ProductReview> Reviews => _reviews.ToImmutableList();
 
     private Product(
         ProductId id,
@@ -45,9 +50,11 @@ public class Product
         return new(id, name, quantity, sku, price);
     }
 
+    #region ef
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private Product() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    #endregion
 }
 
 

@@ -1,4 +1,5 @@
-﻿using Domain.Customers.ValueObjects;
+﻿using Domain.Customers.Entities;
+using Domain.Customers.ValueObjects;
 
 namespace Domain.Customers;
 
@@ -14,6 +15,8 @@ public class Customer
 
     public string? ProfilePicture { get; private set; }
 
+    public Cart Cart { get; private set; }
+
     private Customer(
         CustomerId id,
         string email,
@@ -26,6 +29,7 @@ public class Customer
         FirstName = firstName;
         LastName = lastName;
         ProfilePicture = profilePicture;
+        Cart = Cart.Create(CartId.CreateNew());
     }
 
     public static Customer Create(
