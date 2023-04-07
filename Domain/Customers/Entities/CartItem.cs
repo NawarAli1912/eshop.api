@@ -1,26 +1,25 @@
 ﻿using Domain.Customers.ValueObjects;
 using Domain.Products.ValueObjects;
+using Domain.SharedKernel.Primitives;
 using Domain.SharedKernel.ValueObjects;
 
 namespace Domain.Customers.Entities;
-public record CartItem
+public class CartItem : Entity<CartItemId>
 {
-    public CartItemId Id { get; init; }
 
-    public ProductId ProductId { get; init; }
+    public ProductId ProductId { get; private set; }
 
-    public Money Price { get; init; }
+    public Money Price { get; private set; }
 
-    public int Quantity { get; init; }
+    public int Quantity { get; private set; }
 
 
     private CartItem(
         CartItemId id,
         ProductId productId,
         int quantity,
-        Money productPrice)
+        Money productPrice) : base(id)
     {
-        Id = id;
         ProductId = productId;
         Quantity = quantity;
         Price = new Money(productPrice.Cureency, quantity * productPrice.Amount);

@@ -1,18 +1,16 @@
 ﻿using Domain.Customers.ValueObjects;
+using Domain.SharedKernel.Primitives;
 using System.Collections.Immutable;
 
 namespace Domain.Customers.Entities;
-public class Cart
+public class Cart : Entity<CartId>
 {
     private readonly List<CartItem> _items = new();
 
-    public CartId Id { get; private set; }
-
     public IImmutableList<CartItem> Items => _items.ToImmutableList();
 
-    private Cart(CartId id)
+    private Cart(CartId id) : base(id)
     {
-        Id = id;
     }
 
     public static Cart Create(CartId id)

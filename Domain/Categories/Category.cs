@@ -1,12 +1,11 @@
 ﻿using Domain.Categories.ValueObjects;
+using Domain.SharedKernel.Primitives;
 using System.Collections.Immutable;
 
 namespace Domain.Categories;
-public class Category
+public class Category : AggregateRoot<CategoryId>
 {
     private readonly HashSet<Category> _subcategories = new();
-
-    public CategoryId Id { get; private set; }
 
     public string Name { get; private set; }
 
@@ -26,9 +25,8 @@ public class Category
         string description,
         CategoryId parentCategoryId,
         string? imageUrl = null,
-        bool isFeatured = false)
+        bool isFeatured = false) : base(id)
     {
-        Id = id;
         Name = name;
         Description = description;
         ParentCategoryId = parentCategoryId;
@@ -60,4 +58,10 @@ public class Category
             _subcategories.Remove(subcategory);
         }
     }
+
+    #region ef
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    private Category() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    #endregion
 }

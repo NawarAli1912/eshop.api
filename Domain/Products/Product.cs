@@ -1,18 +1,17 @@
 ﻿using Domain.Categories.ValueObjects;
 using Domain.Products.Entities;
 using Domain.Products.ValueObjects;
+using Domain.SharedKernel.Primitives;
 using Domain.SharedKernel.ValueObjects;
 using System.Collections.Immutable;
 
 namespace Domain.Products;
 
-public class Product
+public class Product : AggregateRoot<ProductId>
 {
     private readonly List<CategoryId> _categoryIds = new();
 
     private readonly List<ProductReview> _reviews = new();
-
-    public ProductId Id { get; private set; }
 
     public string Name { get; private set; } = string.Empty;
 
@@ -31,9 +30,8 @@ public class Product
         string name,
         int quantity,
         SKU sku,
-        Money price)
+        Money price) : base(id)
     {
-        Id = id;
         Name = name;
         Quantity = quantity;
         SKU = sku;
