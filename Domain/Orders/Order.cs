@@ -3,15 +3,14 @@ using Domain.Orders.Entities;
 using Domain.Orders.Enums;
 using Domain.Orders.ValueObjects;
 using Domain.Products;
+using Domain.SharedKernel.Primitives;
 using System.Collections.Immutable;
 
 namespace Domain.Orders;
 
-public class Order
+public class Order : AggregateRoot<OrderId>
 {
     private readonly HashSet<LineItem> _lineItems = new();
-
-    public OrderId Id { get; private set; }
 
     public CustomerId CustomerId { get; private set; }
 
@@ -47,21 +46,22 @@ public class Order
         return true;
     }
 
+    private Order(OrderId id, CustomerId customerId) : base(id)
+    {
+        CustomerId = customerId;
+        Status = OrderStatus.Pending;
+        CreatedAt = DateTime.UtcNow;
+        ModifiedAt = DateTime.UtcNow;
+    }
+
     public static Order Create(OrderId id, CustomerId customerId)
     {
-        return new Order
-        {
-            Id = id,
-            CustomerId = customerId,
-            Status = OrderStatus.Pending,
-            CreatedAt = DateTime.UtcNow,
-            ModifiedAt = DateTime.UtcNow
-        };
+        return new(id, customerId);
     }
 
     #region ef
-#pragma warning disable CS8618
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private Order() { }
-#pragma warning restore CS8618
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     #endregion
 }

@@ -1,27 +1,12 @@
 ﻿using Domain.Orders.ValueObjects;
 using Domain.Products.ValueObjects;
+using Domain.SharedKernel.Primitives;
 using Domain.SharedKernel.ValueObjects;
 
 namespace Domain.Orders.Entities;
 
-public class LineItem
+public class LineItem : Entity<LineItemId>
 {
-    private LineItem(
-        LineItemId id,
-        OrderId orderId,
-        ProductId productId,
-        Money price,
-        int quantity)
-    {
-        Id = id;
-        OrderId = orderId;
-        ProductId = productId;
-        Price = price;
-        Quantity = quantity;
-    }
-
-    public LineItemId Id { get; private set; }
-
     public OrderId OrderId { get; private set; }
 
     public ProductId ProductId { get; private set; }
@@ -29,6 +14,19 @@ public class LineItem
     public int Quantity { get; private set; }
 
     public Money Price { get; private set; }
+
+    private LineItem(
+        LineItemId id,
+        OrderId orderId,
+        ProductId productId,
+        Money price,
+        int quantity) : base(id)
+    {
+        OrderId = orderId;
+        ProductId = productId;
+        Price = price;
+        Quantity = quantity;
+    }
 
     public static LineItem Create(
         LineItemId id,
