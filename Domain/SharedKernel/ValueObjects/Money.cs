@@ -1,2 +1,2 @@
 ﻿namespace Domain.SharedKernel.ValueObjects;
-public record Money(string Cureency, decimal Amount);
+public record Money(decimal Amount, string Cureency);

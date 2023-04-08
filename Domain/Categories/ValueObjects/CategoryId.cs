@@ -14,6 +14,11 @@ public record CategoryId
         Value = id;
     }
 
+    public static CategoryId Create(string id)
+    {
+        return new CategoryId(new Guid(id));
+    }
+
     public static CategoryId CreateNew()
     {
         return new CategoryId();

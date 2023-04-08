@@ -4,6 +4,7 @@ public record struct Result<TValue>
 {
     private readonly TValue? _value = default;
     private readonly List<Error>? _errors = null;
+
     private static readonly Error NoFirstError = Error.Unexpected(
         code: "Result.NoFirstError",
         description: "First error cannot be retrieved from a successful Result.");
@@ -48,6 +49,7 @@ public record struct Result<TValue>
         _errors = errors;
         IsError = true;
     }
+
     private Result(TValue value)
     {
         _value = value;
@@ -139,7 +141,7 @@ public record struct Result<TValue>
     }
 }
 
-public static class Result
+public class Result
 {
     public static Result<TValue> From<TValue>(TValue value)
     {

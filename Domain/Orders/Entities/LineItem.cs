@@ -40,7 +40,7 @@ public class LineItem : Entity<LineItemId>
             throw new ArgumentException(nameof(quantity));
         }
 
-        var cost = new Money(productPrice.Cureency, (productPrice.Amount * quantity));
+        var cost = new Money((productPrice.Amount * quantity), productPrice.Cureency);
         return new(id, orderId, productId, cost, quantity);
     }
 

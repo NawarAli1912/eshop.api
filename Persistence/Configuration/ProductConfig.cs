@@ -76,5 +76,13 @@ internal class ProductConfig : IEntityTypeConfiguration<Product>
             .Property(p => p.Comment)
             .HasMaxLength(256);
         });
+
+        builder.OwnsOne(p => p.AverageRating);
+
+        builder.Metadata.FindNavigation(nameof(Product.CategoryIds))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Metadata.FindNavigation(nameof(Product.Reviews))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

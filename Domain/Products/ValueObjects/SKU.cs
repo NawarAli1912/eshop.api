@@ -1,8 +1,10 @@
-﻿namespace Domain.Products.ValueObjects;
+﻿using Domain.SharedKernel.Primitives;
+
+namespace Domain.Products.ValueObjects;
 
 public record SKU
 {
-    private const int DefaultLength = 15;
+    private const int DefaultLength = 8;
 
     private SKU(string value)
     {
@@ -11,16 +13,22 @@ public record SKU
 
     public string Value { get; init; }
 
-    public static SKU? Create(string value)
+    public static Result<SKU> Create(string value)
     {
+        var errors = new List<Error>();
         if (string.IsNullOrEmpty(value))
         {
-            return null;
+            errors.Add(Error.Validation("SKU.Empty", "SKU shouldn't be empty."));
         }
 
         if (value.Length != DefaultLength)
         {
-            return null;
+            errors.Add(Error.Validation("SKU.InvalidLength", "SKU should be 8 characters long."));
+        }
+
+        if (errors.Count > 0)
+        {
+            return errors;
         }
 
         return new SKU(value);
