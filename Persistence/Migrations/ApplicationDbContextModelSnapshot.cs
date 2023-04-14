@@ -29,19 +29,22 @@ namespace Persistence.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
-                    b.Property<Guid>("ParentCategoryId")
+                    b.Property<Guid?>("ParentCategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -54,6 +57,9 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Customers.Customer", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CartId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -76,10 +82,65 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CartId")
+                        .IsUnique();
+
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Customers", "Cust");
+                    b.ToTable("Customers", "cust");
+                });
+
+            modelBuilder.Entity("Domain.Customers.Entities.Cart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cart", "cust");
+                });
+
+            modelBuilder.Entity("Domain.Customers.Entities.CartItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.ToTable("CartItems", "cust");
+                });
+
+            modelBuilder.Entity("Domain.Orders.Entities.LineItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("LineItems", "ord");
                 });
 
             modelBuilder.Entity("Domain.Orders.Order", b =>
@@ -104,14 +165,49 @@ namespace Persistence.Migrations
                     b.ToTable("Orders", "ord");
                 });
 
+            modelBuilder.Entity("Domain.Products.Entities.ProductReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductReviews", "prod");
+                });
+
             modelBuilder.Entity("Domain.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -123,72 +219,123 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Categories.Category", b =>
                 {
-                    b.HasOne("Domain.Categories.Category", null)
+                    b.HasOne("Domain.Categories.Category", "ParentCategory")
                         .WithMany("Subcategories")
-                        .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasForeignKey("ParentCategoryId");
+
+                    b.OwnsMany("Domain.Products.ValueObjects.ProductId", "ProductIds", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("int");
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("CategoryId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<Guid>("Value")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("ProductId");
+
+                            b1.HasKey("Id", "CategoryId");
+
+                            b1.HasIndex("CategoryId");
+
+                            b1.ToTable("CategoryProductIds", "prod");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CategoryId");
+                        });
+
+                    b.Navigation("ParentCategory");
+
+                    b.Navigation("ProductIds");
+                });
+
+            modelBuilder.Entity("Domain.Customers.Customer", b =>
+                {
+                    b.HasOne("Domain.Customers.Entities.Cart", "Cart")
+                        .WithOne()
+                        .HasForeignKey("Domain.Customers.Customer", "CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+                });
+
+            modelBuilder.Entity("Domain.Customers.Entities.CartItem", b =>
+                {
+                    b.HasOne("Domain.Customers.Entities.Cart", null)
+                        .WithMany("Items")
+                        .HasForeignKey("CartId");
+
+                    b.OwnsOne("Domain.SharedKernel.ValueObjects.Money", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("CartItemId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(10,2)");
+
+                            b1.Property<byte>("Currency")
+                                .HasColumnType("tinyint");
+
+                            b1.HasKey("CartItemId");
+
+                            b1.ToTable("CartItems", "cust");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CartItemId");
+                        });
+
+                    b.Navigation("Price")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Orders.Order", b =>
+            modelBuilder.Entity("Domain.Orders.Entities.LineItem", b =>
                 {
-                    b.OwnsMany("Domain.Orders.Order.LineItems#Domain.Orders.Entities.LineItem", "LineItems", b1 =>
+                    b.HasOne("Domain.Orders.Order", "Order")
+                        .WithMany("LineItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Domain.SharedKernel.ValueObjects.Money", "Price", b1 =>
                         {
-                            b1.Property<Guid>("Id")
-                                .HasColumnType("uniqueidentifier")
-                                .HasColumnName("LineItemId");
-
-                            b1.Property<Guid>("OrderId")
+                            b1.Property<Guid>("LineItemId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(10, 2)");
 
-                            b1.Property<int>("Quantity")
-                                .HasColumnType("int");
+                            b1.Property<byte>("Currency")
+                                .HasColumnType("tinyint");
 
-                            b1.HasKey("Id", "OrderId");
-
-                            b1.HasIndex("OrderId");
+                            b1.HasKey("LineItemId");
 
                             b1.ToTable("LineItems", "ord");
 
                             b1.WithOwner()
-                                .HasForeignKey("OrderId");
-
-                            b1.OwnsOne("Domain.Orders.Order.LineItems#Domain.Orders.Entities.LineItem.Price#Domain.SharedKernel.ValueObjects.Money", "Price", b2 =>
-                                {
-                                    b2.Property<Guid>("LineItemId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<Guid>("LineItemOrderId")
-                                        .HasColumnType("uniqueidentifier");
-
-                                    b2.Property<decimal>("Amount")
-                                        .HasColumnType("decimal(10, 2)");
-
-                                    b2.Property<string>("Cureency")
-                                        .IsRequired()
-                                        .HasColumnType("nvarchar(max)");
-
-                                    b2.HasKey("LineItemId", "LineItemOrderId");
-
-                                    b2.ToTable("LineItems", "ord");
-
-                                    b2.WithOwner()
-                                        .HasForeignKey("LineItemId", "LineItemOrderId");
-                                });
-
-                            b1.Navigation("Price")
-                                .IsRequired();
+                                .HasForeignKey("LineItemId");
                         });
 
-                    b.Navigation("LineItems");
+                    b.Navigation("Order");
+
+                    b.Navigation("Price")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Products.Entities.ProductReview", b =>
+                {
+                    b.HasOne("Domain.Products.Product", null)
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("Domain.Products.Product", b =>
                 {
-                    b.OwnsMany("Domain.Products.Product.CategoryIds#Domain.Categories.ValueObjects.CategoryId", "CategoryIds", b1 =>
+                    b.OwnsMany("Domain.Categories.ValueObjects.CategoryId", "CategoryIds", b1 =>
                         {
                             b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
@@ -213,7 +360,7 @@ namespace Persistence.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsOne("Domain.Products.Product.Price#Domain.SharedKernel.ValueObjects.Money", "Price", b1 =>
+                    b.OwnsOne("Domain.SharedKernel.ValueObjects.Money", "Price", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
@@ -221,9 +368,8 @@ namespace Persistence.Migrations
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(10, 2)");
 
-                            b1.Property<string>("Cureency")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                            b1.Property<byte>("Currency")
+                                .HasColumnType("tinyint");
 
                             b1.HasKey("ProductId");
 
@@ -233,14 +379,15 @@ namespace Persistence.Migrations
                                 .HasForeignKey("ProductId");
                         });
 
-                    b.OwnsOne("Domain.Products.Product.SKU#Domain.Products.ValueObjects.SKU", "SKU", b1 =>
+                    b.OwnsOne("Domain.Products.ValueObjects.SKU", "SKU", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
+                                .HasMaxLength(15)
+                                .HasColumnType("nvarchar(15)");
 
                             b1.HasKey("ProductId");
 
@@ -249,6 +396,28 @@ namespace Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
                         });
+
+                    b.OwnsOne("Domain.SharedKernel.ValueObjects.AverageRating", "AverageRating", b1 =>
+                        {
+                            b1.Property<Guid>("ProductId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("RatingCount")
+                                .HasColumnType("int");
+
+                            b1.Property<double>("Value")
+                                .HasColumnType("float");
+
+                            b1.HasKey("ProductId");
+
+                            b1.ToTable("Products", "prod");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProductId");
+                        });
+
+                    b.Navigation("AverageRating")
+                        .IsRequired();
 
                     b.Navigation("CategoryIds");
 
@@ -262,6 +431,21 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Categories.Category", b =>
                 {
                     b.Navigation("Subcategories");
+                });
+
+            modelBuilder.Entity("Domain.Customers.Entities.Cart", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Domain.Orders.Order", b =>
+                {
+                    b.Navigation("LineItems");
+                });
+
+            modelBuilder.Entity("Domain.Products.Product", b =>
+                {
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

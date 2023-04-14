@@ -18,11 +18,11 @@ public class CartItem : Entity<CartItemId>
         CartItemId id,
         ProductId productId,
         int quantity,
-        Money productPrice) : base(id)
+        Money price) : base(id)
     {
         ProductId = productId;
         Quantity = quantity;
-        Price = new Money(productPrice.Cureency, quantity * productPrice.Amount);
+        Price = price;
     }
 
     public static CartItem Create(
@@ -31,7 +31,7 @@ public class CartItem : Entity<CartItemId>
         int quantity,
         Money productPrice)
     {
-        return new(id, productId, quantity, productPrice);
+        return new(id, productId, quantity, Money.Create(quantity * productPrice.Amount, productPrice.Currency));
     }
 
     #region ef

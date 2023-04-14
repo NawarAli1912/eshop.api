@@ -1,6 +1,8 @@
-﻿namespace Domain.Orders.ValueObjects;
+﻿using Domain.SharedKernel.Primitives;
 
-public record LineItemId
+namespace Domain.Orders.ValueObjects;
+
+public class LineItemId : ValueObject
 {
     public Guid Value { get; init; }
 
@@ -22,5 +24,10 @@ public record LineItemId
     public static LineItemId Create(Guid id)
     {
         return new LineItemId(id);
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

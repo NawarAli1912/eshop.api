@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configuration;
 
-internal class CategoryConfig : IEntityTypeConfiguration<Category>
+internal sealed class CategoryConfig : IEntityTypeConfiguration<Category>
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
@@ -19,14 +19,40 @@ internal class CategoryConfig : IEntityTypeConfiguration<Category>
                 value => CategoryId.Create(value));
 
         builder.HasMany(c => c.Subcategories)
-            .WithOne()
-            .HasForeignKey(c => c.ParentCategoryId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .WithOne(c => c.ParentCategory)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
+        builder.OwnsMany(c => c.ProductIds, pBuilder =>
+        {
+            pBuilder
+                .ToTable("CategoryProductIds", Schemas.Product);
 
-        builder.Property(c => c.ParentCategoryId)
-            .HasConversion(
-                categoryId => categoryId.Value,
-                value => CategoryId.Create(value));
+            pBuilder
+                .WithOwner()
+                .HasForeignKey("CategoryId");
+
+            pBuilder
+                .Property(p => p.Value)
+                .HasColumnName("ProductId")
+                .ValueGeneratedNever();
+
+            pBuilder
+                .HasKey("Id", "CategoryId");
+        });
+
+        builder
+            .Property(c => c.Name)
+            .HasMaxLength(64);
+
+        builder
+            .Property(c => c.Description)
+            .HasMaxLength(512);
+
+        builder
+            .Property(c => c.ImageUrl)
+            .HasMaxLength(256);
+
+        builder.Metadata.FindNavigation(nameof(Category.ProductIds))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }

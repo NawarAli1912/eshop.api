@@ -1,6 +1,8 @@
-﻿namespace Domain.Products.ValueObjects;
+﻿using Domain.SharedKernel.Primitives;
 
-public record ProductReviewId
+namespace Domain.Products.ValueObjects;
+
+public class ProductReviewId : ValueObject
 {
     public Guid Value { get; init; }
 
@@ -22,5 +24,10 @@ public record ProductReviewId
     public static ProductReviewId Create(Guid id)
     {
         return new ProductReviewId(id);
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

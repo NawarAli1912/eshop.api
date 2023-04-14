@@ -7,7 +7,7 @@ namespace Domain.Orders.Entities;
 
 public class LineItem : Entity<LineItemId>
 {
-    public OrderId OrderId { get; private set; }
+    public Order Order { get; private set; }
 
     public ProductId ProductId { get; private set; }
 
@@ -17,12 +17,12 @@ public class LineItem : Entity<LineItemId>
 
     private LineItem(
         LineItemId id,
-        OrderId orderId,
+        Order order,
         ProductId productId,
         Money price,
         int quantity) : base(id)
     {
-        OrderId = orderId;
+        Order = order;
         ProductId = productId;
         Price = price;
         Quantity = quantity;
@@ -30,7 +30,7 @@ public class LineItem : Entity<LineItemId>
 
     public static LineItem Create(
         LineItemId id,
-        OrderId orderId,
+        Order order,
         ProductId productId,
         Money productPrice,
         int quantity = 1)
@@ -40,8 +40,8 @@ public class LineItem : Entity<LineItemId>
             throw new ArgumentException(nameof(quantity));
         }
 
-        var cost = new Money(productPrice.Cureency, (productPrice.Amount * quantity));
-        return new(id, orderId, productId, cost, quantity);
+        var cost = Money.Create((productPrice.Amount * quantity), productPrice.Currency);
+        return new(id, order, productId, cost, quantity);
     }
 
     // 

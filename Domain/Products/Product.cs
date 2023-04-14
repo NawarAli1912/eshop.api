@@ -3,17 +3,18 @@ using Domain.Products.Entities;
 using Domain.Products.ValueObjects;
 using Domain.SharedKernel.Primitives;
 using Domain.SharedKernel.ValueObjects;
-using System.Collections.Immutable;
 
 namespace Domain.Products;
 
-public class Product : AggregateRoot<ProductId>
+public class Product : AggregateRoot<ProductId, Guid>
 {
-    private readonly List<CategoryId> _categoryIds = new();
+    private readonly HashSet<CategoryId> _categoryIds = new();
 
     private readonly List<ProductReview> _reviews = new();
 
-    public string Name { get; private set; } = string.Empty;
+    public string Name { get; private set; }
+
+    public string Description { get; private set; }
 
     public int Quantity { get; set; }
 
@@ -21,31 +22,70 @@ public class Product : AggregateRoot<ProductId>
 
     public Money Price { get; private set; }
 
-    public IImmutableList<CategoryId> CategoryIds => _categoryIds.ToImmutableList();
+    public AverageRating AverageRating { get; private set; }
 
-    public IImmutableList<ProductReview> Reviews => _reviews.ToImmutableList();
+    public IReadOnlyList<CategoryId> CategoryIds => _categoryIds.ToList();
+
+    public IReadOnlyList<ProductReview> Reviews => _reviews.ToList();
 
     private Product(
         ProductId id,
         string name,
+        string description,
         int quantity,
         SKU sku,
-        Money price) : base(id)
+        Money price,
+        AverageRating averageRating) : base(id)
     {
         Name = name;
+        Description = description;
         Quantity = quantity;
         SKU = sku;
         Price = price;
+        AverageRating = averageRating;
     }
 
     public static Product Create(
         ProductId id,
         string name,
+        string description,
         int quantity,
         SKU sku,
         Money price)
     {
-        return new(id, name, quantity, sku, price);
+        return new(id, name, description, quantity, sku, price, AverageRating.Create(0, 0));
+    }
+
+    public bool AddCateogry(CategoryId categoryId)
+    {
+        if (_categoryIds.Contains(categoryId))
+        {
+            return false;
+        }
+
+        _categoryIds.Add(categoryId);
+        return true;
+    }
+
+    public bool RemoveCategory(CategoryId categoryId)
+    {
+        if (_categoryIds.Contains(categoryId))
+        {
+            _categoryIds.Remove(categoryId);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void AddRating(int rating)
+    {
+        AverageRating.AddRating(rating);
+    }
+
+    public void RemoveRating(int rating)
+    {
+        AverageRating.RemoveRating(rating);
     }
 
     #region ef

@@ -1,5 +1,6 @@
 ﻿using Domain.Customers.ValueObjects;
 using Domain.Orders;
+using Domain.Orders.Entities;
 using Domain.Orders.ValueObjects;
 using Domain.Products.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configuration;
 
-internal class OrderConfig : IEntityTypeConfiguration<Order>
+internal sealed class OrderConfig : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
     {
@@ -29,35 +30,37 @@ internal class OrderConfig : IEntityTypeConfiguration<Order>
                 value => CustomerId.Create(value));
 
         builder
-            .OwnsMany(o => o.LineItems, liBuilder =>
-            {
-                liBuilder.ToTable("LineItems", Schemas.Order);
+            .HasMany(o => o.LineItems)
+            .WithOne(li => li.Order);
 
-                liBuilder
-                    .WithOwner()
-                    .HasForeignKey("OrderId");
+    }
+}
 
-                liBuilder
-                    .Property(li => li.Id)
-                    .HasColumnName("LineItemId")
-                    .HasConversion(
-                        lineItemId => lineItemId.Value,
-                        value => LineItemId.Create(value));
+internal sealed class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
+{
+    public void Configure(EntityTypeBuilder<LineItem> builder)
+    {
+        builder.ToTable("LineItems", Schemas.Order);
 
-                liBuilder
-                    .HasKey("Id", "OrderId");
+        builder
+            .HasKey(li => li.Id);
 
-                liBuilder
-                    .OwnsOne(p => p.Price, pc =>
-                    {
-                        pc.Property(m => m.Amount)
-                            .HasColumnType("decimal(10, 2)");
-                    });
+        builder
+            .Property(li => li.Id)
+            .HasConversion(
+                lineItemId => lineItemId.Value,
+                value => LineItemId.Create(value));
 
-                liBuilder.Property(li => li.ProductId)
-                    .HasConversion(
-                        productId => productId.Value,
-                        value => ProductId.Create(value));
-            });
+        builder
+            .Property(li => li.ProductId)
+            .HasConversion(
+                productId => productId.Value,
+                value => ProductId.Create(value));
+
+        builder.OwnsOne(li => li.Price, pBuilder =>
+        {
+            pBuilder.Property(p => p.Amount)
+                .HasColumnType("decimal(10, 2)");
+        });
     }
 }

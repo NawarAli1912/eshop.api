@@ -1,16 +1,18 @@
 ﻿using Domain.Customers.ValueObjects;
 using Domain.Products;
+using Domain.Products.Entities;
 using Domain.Products.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configuration;
 
-internal class ProductConfig : IEntityTypeConfiguration<Product>
+internal sealed class ProductConfig : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
         builder.ToTable("Products", Schemas.Product);
+
         builder
             .HasKey(p => p.Id);
 
@@ -22,14 +24,32 @@ internal class ProductConfig : IEntityTypeConfiguration<Product>
                 );
 
         builder
-            .OwnsOne(p => p.Price, pc =>
+            .OwnsOne(p => p.Price, pBuilder =>
             {
-                pc.Property(m => m.Amount)
+                pBuilder
+                    .Property(m => m.Amount)
                     .HasColumnType("decimal(10, 2)");
             });
 
         builder
-            .OwnsOne(p => p.SKU);
+            .Property(p => p.Name)
+            .HasMaxLength(256);
+
+        builder
+            .Property(p => p.Description)
+            .HasMaxLength(512);
+
+        builder
+            .HasMany(p => p.Reviews)
+            .WithOne();
+
+        builder
+            .OwnsOne(p => p.SKU, skuBuilder =>
+            {
+                skuBuilder
+                    .Property(sku => sku.Value)
+                    .HasMaxLength(15);
+            });
 
         builder.OwnsMany(p => p.CategoryIds, cBuilder =>
         {
@@ -48,33 +68,41 @@ internal class ProductConfig : IEntityTypeConfiguration<Product>
             cBuilder.HasKey("Id", "ProductId");
         });
 
-        builder.OwnsMany(p => p.Reviews, rBuilder =>
-        {
-            rBuilder
-                .ToTable("ProductReviews", Schemas.Product);
 
-            rBuilder
-                .Property(review => review.Id)
-                .HasConversion(
-                    reviewId => reviewId.Value,
-                    value => ProductReviewId.Create(value))
-                .HasColumnName("ReviewId");
+        builder.OwnsOne(p => p.AverageRating);
 
-            rBuilder
-                .WithOwner()
-                .HasForeignKey("ProductId");
+        builder.Metadata.FindNavigation(nameof(Product.CategoryIds))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
 
-            rBuilder
-                .Property(review => review.CustomerId)
-                .HasConversion(
-                    customerId => customerId.Value,
-                    value => CustomerId.Create(value));
+        builder.Metadata.FindNavigation(nameof(Product.Reviews))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+    }
+}
 
-            rBuilder.HasKey("Id", "ProductId");
+internal sealed class ProductReviewConfig : IEntityTypeConfiguration<ProductReview>
+{
+    public void Configure(EntityTypeBuilder<ProductReview> builder)
+    {
+        builder.ToTable("ProductReviews", Schemas.Product);
 
-            rBuilder
-            .Property(p => p.Comment)
-            .HasMaxLength(256);
-        });
+        builder
+            .HasKey(pr => pr.Id);
+
+        builder
+            .Property(pr => pr.Id)
+            .HasConversion(
+                productReviewId => productReviewId.Value,
+                value => ProductReviewId.Create(value));
+
+        builder
+            .Property(pr => pr.CustomerId)
+            .HasConversion(
+                customerId => customerId.Value,
+                value => CustomerId.Create(value));
+
+        builder
+            .Property(pr => pr.Comment)
+            .HasMaxLength(512)
+            .IsRequired(true);
     }
 }

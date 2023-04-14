@@ -1,4 +1,5 @@
-﻿using Domain.Products.Abstraction.Repository;
+﻿using Domain.Products;
+using Domain.Products.Abstraction.Repository;
 
 namespace Persistence.Repository;
 internal class ProductRepository : IProductRepository
@@ -8,5 +9,10 @@ internal class ProductRepository : IProductRepository
     public ProductRepository(ApplicationDbContext context)
     {
         _context = context;
+    }
+
+    public void Add(Product product)
+    {
+        _context.Products.Add(product);
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace Domain.Categories.ValueObjects;
+﻿using Domain.SharedKernel.Primitives;
 
-public record CategoryId
+namespace Domain.Categories.ValueObjects;
+
+public sealed class CategoryId : AggregateRootId<Guid>
 {
-    public Guid Value { get; init; }
+    public override Guid Value { get; protected set; }
 
     private CategoryId()
     {
@@ -14,6 +16,11 @@ public record CategoryId
         Value = id;
     }
 
+    public static CategoryId Create(string id)
+    {
+        return new CategoryId(new Guid(id));
+    }
+
     public static CategoryId CreateNew()
     {
         return new CategoryId();
@@ -22,5 +29,9 @@ public record CategoryId
     public static CategoryId Create(Guid id)
     {
         return new CategoryId(id);
+    }
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

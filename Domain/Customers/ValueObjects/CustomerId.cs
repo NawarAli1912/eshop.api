@@ -1,8 +1,10 @@
-﻿namespace Domain.Customers.ValueObjects;
+﻿using Domain.SharedKernel.Primitives;
 
-public record CustomerId
+namespace Domain.Customers.ValueObjects;
+
+public sealed class CustomerId : AggregateRootId<Guid>
 {
-    public Guid Value { get; init; }
+    public override Guid Value { get; protected set; }
 
     private CustomerId()
     {
@@ -22,5 +24,10 @@ public record CustomerId
     public static CustomerId Create(Guid id)
     {
         return new CustomerId(id);
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

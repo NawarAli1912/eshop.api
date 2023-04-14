@@ -16,12 +16,14 @@ public class ProductReview : Entity<ProductReviewId>
     private ProductReview(
         ProductReviewId id,
         string comment,
-        CustomerId customerId) : base(id)
+        CustomerId customerId,
+        DateTime createdAt,
+        DateTime modifiedAt) : base(id)
     {
         Comment = comment;
         CustomerId = customerId;
-        CreatedAt = DateTime.UtcNow;
-        ModifiedAt = DateTime.UtcNow;
+        CreatedAt = createdAt;
+        ModifiedAt = modifiedAt;
     }
 
     public static ProductReview Create(
@@ -29,7 +31,12 @@ public class ProductReview : Entity<ProductReviewId>
         string comment,
         CustomerId customerId)
     {
-        return new(id, comment, customerId);
+        return new(
+            id,
+            comment,
+            customerId,
+            DateTime.UtcNow,
+            DateTime.UtcNow);
     }
 
     #region ef

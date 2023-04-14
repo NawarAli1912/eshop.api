@@ -1,4 +1,5 @@
 ﻿using Domain.Customers;
+using Domain.Customers.Entities;
 using Domain.Customers.ValueObjects;
 using Domain.Products.ValueObjects;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configuration;
 
-internal class CustomerConfig : IEntityTypeConfiguration<Customer>
+internal sealed class CustomerConfig : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
@@ -38,59 +39,61 @@ internal class CustomerConfig : IEntityTypeConfiguration<Customer>
             .IsUnique();
 
         builder
-            .OwnsOne(c => c.Cart, cBuilder =>
-            {
-                cBuilder
-                    .ToTable("CustomersCart", Schemas.Customer);
+            .HasOne(c => c.Cart)
+            .WithOne()
+            .HasForeignKey<Customer>("CartId");
+    }
+}
 
-                cBuilder
-                    .Property(cart => cart.Id)
-                    .HasConversion(
-                        cartId => cartId.Value,
-                        value => CartId.Create(value))
-                    .HasColumnName("CartId");
+internal sealed class CartConfig : IEntityTypeConfiguration<Cart>
+{
+    public void Configure(EntityTypeBuilder<Cart> builder)
+    {
+        builder
+            .ToTable("Cart", Schemas.Customer);
 
-                cBuilder
-                    .WithOwner()
-                    .HasForeignKey("CustomerId");
+        builder
+            .HasKey(c => c.Id);
 
-                cBuilder.HasKey("Id", "CustomerId");
+        builder
+            .Property(c => c.Id)
+            .HasConversion(
+                cartId => cartId.Value,
+                value => CartId.Create(value));
 
-                cBuilder
-                    .HasIndex("CustomerId");
+        builder
+            .HasMany(c => c.Items)
+            .WithOne();
+    }
+}
 
-                cBuilder.OwnsMany(cart => cart.Items, ciBuilder =>
-                {
-                    ciBuilder.Property(ci => ci.ProductId)
-                        .HasConversion(
-                            productId => productId.Value,
-                            value => ProductId.Create(value));
+internal sealed class CartItemConfig : IEntityTypeConfiguration<CartItem>
+{
+    public void Configure(EntityTypeBuilder<CartItem> builder)
+    {
+        builder
+            .ToTable("CartItems", Schemas.Customer);
 
-                    ciBuilder.Property(ci => ci.Id)
-                        .HasConversion(
-                            cartItemId => cartItemId.Value,
-                            value => CartItemId.Create(value))
-                        .ValueGeneratedNever()
-                        .HasColumnName("CartItemId");
+        builder
+            .HasKey(ci => ci.Id);
 
-                    ciBuilder
-                        .WithOwner()
-                        .HasForeignKey("CartId", "CustomerId");
+        builder
+            .Property(ci => ci.Id)
+            .HasConversion(
+                cartItemId => cartItemId.Value,
+                value => CartItemId.Create(value));
 
-                    ciBuilder
-                        .HasKey("Id", "CartId", "CustomerId");
+        builder
+            .Property(ci => ci.ProductId)
+            .HasConversion(
+                productId => productId.Value,
+                value => ProductId.Create(value));
 
-                    ciBuilder
-                        .HasIndex("CartId");
-
-                    ciBuilder
-                        .OwnsOne(ci => ci.Price, pBuilder =>
-                        {
-                            pBuilder
-                                .Property(p => p.Amount)
-                                .HasColumnType("decimal(10, 2)");
-                        });
-                });
-            });
+        builder.OwnsOne(ci => ci.Price, pBuilder =>
+        {
+            pBuilder
+                .Property(p => p.Amount)
+                .HasColumnType("decimal(10,2)");
+        });
     }
 }

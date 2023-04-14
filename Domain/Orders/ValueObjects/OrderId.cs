@@ -1,8 +1,10 @@
-﻿namespace Domain.Orders.ValueObjects;
+﻿using Domain.SharedKernel.Primitives;
 
-public record OrderId
+namespace Domain.Orders.ValueObjects;
+
+public sealed class OrderId : AggregateRootId<Guid>
 {
-    public Guid Value { get; init; }
+    public override Guid Value { get; protected set; }
 
     private OrderId()
     {
@@ -22,5 +24,10 @@ public record OrderId
     public static OrderId Create(Guid id)
     {
         return new OrderId(id);
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }
