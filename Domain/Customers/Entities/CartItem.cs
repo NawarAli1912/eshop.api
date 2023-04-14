@@ -31,7 +31,7 @@ public class CartItem : Entity<CartItemId>
         int quantity,
         Money productPrice)
     {
-        return new(id, productId, quantity, new Money(quantity * productPrice.Amount, productPrice.Cureency));
+        return new(id, productId, quantity, Money.Create(quantity * productPrice.Amount, productPrice.Currency));
     }
 
     #region ef

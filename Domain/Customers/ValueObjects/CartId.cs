@@ -1,5 +1,7 @@
-﻿namespace Domain.Customers.ValueObjects;
-public class CartId
+﻿using Domain.SharedKernel.Primitives;
+
+namespace Domain.Customers.ValueObjects;
+public class CartId : ValueObject
 {
     public Guid Value { get; init; }
 
@@ -21,5 +23,10 @@ public class CartId
     public static CartId Create(Guid id)
     {
         return new CartId(id);
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

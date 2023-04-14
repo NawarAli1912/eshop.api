@@ -1,5 +1,7 @@
-﻿namespace Domain.SharedKernel.ValueObjects;
-public record AverageRating
+﻿using Domain.SharedKernel.Primitives;
+
+namespace Domain.SharedKernel.ValueObjects;
+public class AverageRating : ValueObject
 {
     public double Value { get; private set; }
 
@@ -42,5 +44,11 @@ public record AverageRating
 
         Value = (Value / RatingCount - rating) / (RatingCount - 1);
         RatingCount--;
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
+        yield return RatingCount;
     }
 }

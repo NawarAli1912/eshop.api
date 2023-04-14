@@ -2,7 +2,7 @@
 
 namespace Domain.Products.ValueObjects;
 
-public record SKU
+public class SKU : ValueObject
 {
     private const int DefaultLength = 8;
 
@@ -32,5 +32,10 @@ public record SKU
         }
 
         return new SKU(value);
+    }
+
+    public override IEnumerable<object> GetEqualityComponents()
+    {
+        yield return Value;
     }
 }

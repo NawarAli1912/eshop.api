@@ -3,6 +3,7 @@ using Domain.Categories.ValueObjects;
 using Domain.Products;
 using Domain.Products.ValueObjects;
 using Domain.SharedKernel.Abstraction;
+using Domain.SharedKernel.Enums;
 using Domain.SharedKernel.Primitives;
 using Domain.SharedKernel.ValueObjects;
 using MediatR;
@@ -48,9 +49,10 @@ internal class CreateProductCommandHandler : IRequestHandler<CreateProductComman
         var product = Product.Create(
                         ProductId.CreateNew(),
                         request.Name,
+                        "",
                         request.Quantity,
                         sku.Value,
-                        new Money(request.Price, request.Currency));
+                        Money.Create(request.Price, Currency.USD));
 
 
         _unitOfWork.ProductRepository.Add(product);

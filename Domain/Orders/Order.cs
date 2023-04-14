@@ -3,12 +3,13 @@ using Domain.Orders.Entities;
 using Domain.Orders.Enums;
 using Domain.Orders.ValueObjects;
 using Domain.Products;
+using Domain.Products.ValueObjects;
 using Domain.SharedKernel.Primitives;
 using System.Collections.Immutable;
 
 namespace Domain.Orders;
 
-public class Order : AggregateRoot<OrderId>
+public class Order : AggregateRoot<OrderId, Guid>
 {
     private readonly HashSet<LineItem> _lineItems = new();
 
@@ -26,8 +27,8 @@ public class Order : AggregateRoot<OrderId>
     {
         var lineItem = LineItem.Create(
             LineItemId.CreateNew(),
-            Id,
-            product.Id,
+            this,
+            (ProductId)product.Id,
             product.Price,
             quantity);
 

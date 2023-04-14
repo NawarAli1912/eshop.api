@@ -6,13 +6,15 @@ using Domain.SharedKernel.ValueObjects;
 
 namespace Domain.Products;
 
-public class Product : AggregateRoot<ProductId>
+public class Product : AggregateRoot<ProductId, Guid>
 {
     private readonly HashSet<CategoryId> _categoryIds = new();
 
     private readonly List<ProductReview> _reviews = new();
 
-    public string Name { get; private set; } = string.Empty;
+    public string Name { get; private set; }
+
+    public string Description { get; private set; }
 
     public int Quantity { get; set; }
 
@@ -29,12 +31,14 @@ public class Product : AggregateRoot<ProductId>
     private Product(
         ProductId id,
         string name,
+        string description,
         int quantity,
         SKU sku,
         Money price,
         AverageRating averageRating) : base(id)
     {
         Name = name;
+        Description = description;
         Quantity = quantity;
         SKU = sku;
         Price = price;
@@ -44,11 +48,12 @@ public class Product : AggregateRoot<ProductId>
     public static Product Create(
         ProductId id,
         string name,
+        string description,
         int quantity,
         SKU sku,
         Money price)
     {
-        return new(id, name, quantity, sku, price, AverageRating.Create(0, 0));
+        return new(id, name, description, quantity, sku, price, AverageRating.Create(0, 0));
     }
 
     public bool AddCateogry(CategoryId categoryId)
