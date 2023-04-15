@@ -12,7 +12,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230414120936_init")]
+    [Migration("20230415130400_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -220,6 +220,34 @@ namespace Persistence.Migrations
                     b.ToTable("Products", "prod");
                 });
 
+            modelBuilder.Entity("Persistence.Outbox.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Error")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("OccurredOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ProcessedOnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OutboxMessages");
+                });
+
             modelBuilder.Entity("Domain.Categories.Category", b =>
                 {
                     b.HasOne("Domain.Categories.Category", "ParentCategory")
@@ -245,7 +273,7 @@ namespace Persistence.Migrations
 
                             b1.HasIndex("CategoryId");
 
-                            b1.ToTable("CategoryProductIds", "prod");
+                            b1.ToTable("CategoryProductIds", "cat");
 
                             b1.WithOwner()
                                 .HasForeignKey("CategoryId");

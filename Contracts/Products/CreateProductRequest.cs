@@ -6,4 +6,4 @@ public record CreateProductRequest(
     string SKU,
     decimal Price,
     string Currency,
-    List<string> CategoryIds);
+    List<string>? CategoryIds);

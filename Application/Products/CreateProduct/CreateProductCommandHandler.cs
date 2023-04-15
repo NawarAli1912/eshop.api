@@ -57,8 +57,7 @@ internal class CreateProductCommandHandler : IRequestHandler<CreateProductComman
 
         _unitOfWork.ProductRepository.Add(product);
 
-        await _unitOfWork.CommitAsync()
-                .ConfigureAwait(false);
+        await _unitOfWork.CommitAsync();
 
         return product;
     }

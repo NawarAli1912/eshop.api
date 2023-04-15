@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -17,10 +18,10 @@ namespace Persistence.Migrations
                 name: "cat");
 
             migrationBuilder.EnsureSchema(
-                name: "prod");
+                name: "ord");
 
             migrationBuilder.EnsureSchema(
-                name: "ord");
+                name: "prod");
 
             migrationBuilder.CreateTable(
                 name: "Cart",
@@ -71,6 +72,22 @@ namespace Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OutboxMessages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OccurredOnUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProcessedOnUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Error = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxMessages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -142,7 +159,7 @@ namespace Persistence.Migrations
 
             migrationBuilder.CreateTable(
                 name: "CategoryProductIds",
-                schema: "prod",
+                schema: "cat",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -245,7 +262,7 @@ namespace Persistence.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_CategoryProductIds_CategoryId",
-                schema: "prod",
+                schema: "cat",
                 table: "CategoryProductIds",
                 column: "CategoryId");
 
@@ -291,7 +308,7 @@ namespace Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "CategoryProductIds",
-                schema: "prod");
+                schema: "cat");
 
             migrationBuilder.DropTable(
                 name: "Customers",
@@ -300,6 +317,9 @@ namespace Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "LineItems",
                 schema: "ord");
+
+            migrationBuilder.DropTable(
+                name: "OutboxMessages");
 
             migrationBuilder.DropTable(
                 name: "ProductCategoryIds",
