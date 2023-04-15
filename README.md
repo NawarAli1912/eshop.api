@@ -1,4 +1,4 @@
-# eshop application
+# eshop.api
 
 ## Introduction
 
@@ -21,7 +21,7 @@ note that *the project is still in progress*.
 To run eshop, you'll need .NET 7, docker, and sql-server installed on your system. Follow these steps to get started:
 
 1. Clone the repository.
-2. run the docker-compose file to set up the elastic search.
+2. Run the docker-compose file to set up the elastic search.
 3. Modify the `appsettings.json` file to configure the database.
 4. Build and run the application.
 
