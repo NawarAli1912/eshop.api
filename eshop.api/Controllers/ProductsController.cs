@@ -23,7 +23,7 @@ public class ProductsController : ApiController
                                             request.SKU,
                                             request.Price,
                                             request.Currency,
-                                            request.CategoryIds));
+                                            request.CategoryIds is null ? new List<string>() : request.CategoryIds));
         return createProductResult.Match(
             product => CreatedAtAction(
                 nameof(GetProduct),

@@ -1,4 +1,5 @@
 ﻿using Domain.Categories.ValueObjects;
+using Domain.Products.DomainEvents;
 using Domain.Products.Entities;
 using Domain.Products.ValueObjects;
 using Domain.SharedKernel.Primitives;
@@ -24,7 +25,7 @@ public class Product : AggregateRoot<ProductId, Guid>
 
     public AverageRating AverageRating { get; private set; }
 
-    public IReadOnlyList<CategoryId> CategoryIds => _categoryIds.ToList();
+    public IReadOnlySet<CategoryId> CategoryIds => _categoryIds.ToHashSet();
 
     public IReadOnlyList<ProductReview> Reviews => _reviews.ToList();
 
@@ -53,7 +54,22 @@ public class Product : AggregateRoot<ProductId, Guid>
         SKU sku,
         Money price)
     {
-        return new(id, name, description, quantity, sku, price, AverageRating.Create(0, 0));
+        var product = new Product(
+            id,
+            name,
+            description,
+            quantity,
+            sku,
+            price,
+            AverageRating.Create(0, 0));
+
+        product.RaiseDomainEvent(new ProductCreatedDomainEvent(
+            id.Value.ToString(),
+            name,
+            description,
+            price.Amount));
+
+        return product;
     }
 
     public bool AddCateogry(CategoryId categoryId)

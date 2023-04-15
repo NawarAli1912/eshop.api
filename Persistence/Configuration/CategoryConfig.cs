@@ -25,7 +25,7 @@ internal sealed class CategoryConfig : IEntityTypeConfiguration<Category>
         builder.OwnsMany(c => c.ProductIds, pBuilder =>
         {
             pBuilder
-                .ToTable("CategoryProductIds", Schemas.Product);
+                .ToTable("CategoryProductIds", Schemas.Category);
 
             pBuilder
                 .WithOwner()
