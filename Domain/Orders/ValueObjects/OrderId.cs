@@ -2,9 +2,9 @@
 
 namespace Domain.Orders.ValueObjects;
 
-public sealed class OrderId : AggregateRootId<Guid>
+public sealed class OrderId : ValueObject
 {
-    public override Guid Value { get; protected set; }
+    public Guid Value { get; private set; }
 
     private OrderId()
     {

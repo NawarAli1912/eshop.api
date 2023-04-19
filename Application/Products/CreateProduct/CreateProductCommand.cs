@@ -6,6 +6,7 @@ namespace Application.Products.CreateProduct;
 
 public record CreateProductCommand(
     string Name,
+    string Description,
     int Quantity,
     string SKU,
     decimal Price,

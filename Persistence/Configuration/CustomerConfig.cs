@@ -17,12 +17,6 @@ internal sealed class CustomerConfig : IEntityTypeConfiguration<Customer>
             .HasKey(c => c.Id);
 
         builder
-            .Property(c => c.Id)
-            .HasConversion(
-                customerId => customerId.Value,
-                value => CustomerId.Create(value));
-
-        builder
             .Property(c => c.FirstName)
             .HasMaxLength(128);
 

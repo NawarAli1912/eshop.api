@@ -2,9 +2,9 @@
 
 namespace Domain.Categories.ValueObjects;
 
-public sealed class CategoryId : AggregateRootId<Guid>
+public sealed class CategoryId : ValueObject
 {
-    public override Guid Value { get; protected set; }
+    public Guid Value { get; private set; }
 
     private CategoryId()
     {

@@ -2,9 +2,9 @@
 
 namespace Domain.Customers.ValueObjects;
 
-public sealed class CustomerId : AggregateRootId<Guid>
+public sealed class CustomerId : ValueObject
 {
-    public override Guid Value { get; protected set; }
+    public Guid Value { get; private set; }
 
     private CustomerId()
     {

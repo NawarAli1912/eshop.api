@@ -3,7 +3,7 @@ using Domain.Products.ValueObjects;
 using Domain.SharedKernel.Primitives;
 
 namespace Domain.Categories;
-public class Category : AggregateRoot<CategoryId, Guid>
+public class Category : AggregateRoot<Guid>
 {
     private readonly HashSet<ProductId> _productIds = new();
 
@@ -29,7 +29,7 @@ public class Category : AggregateRoot<CategoryId, Guid>
         string description,
         Category? parentCategory,
         string? imageUrl = null,
-        bool isFeatured = false) : base(id)
+        bool isFeatured = false) : base(id.Value)
     {
         Name = name;
         Description = description;

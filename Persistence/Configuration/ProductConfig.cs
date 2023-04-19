@@ -17,13 +17,6 @@ internal sealed class ProductConfig : IEntityTypeConfiguration<Product>
             .HasKey(p => p.Id);
 
         builder
-            .Property(p => p.Id)
-            .HasConversion(
-                productId => productId.Value,
-                value => ProductId.Create(value)
-                );
-
-        builder
             .OwnsOne(p => p.Price, pBuilder =>
             {
                 pBuilder
