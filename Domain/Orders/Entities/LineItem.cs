@@ -5,7 +5,7 @@ using Domain.SharedKernel.ValueObjects;
 
 namespace Domain.Orders.Entities;
 
-public class LineItem : Entity<LineItemId>
+public class LineItem : Entity<Guid>
 {
     public Order Order { get; private set; }
 
@@ -20,7 +20,7 @@ public class LineItem : Entity<LineItemId>
         Order order,
         ProductId productId,
         Money price,
-        int quantity) : base(id)
+        int quantity) : base(id.Value)
     {
         Order = order;
         ProductId = productId;

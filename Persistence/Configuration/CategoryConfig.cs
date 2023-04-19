@@ -1,5 +1,4 @@
 ﻿using Domain.Categories;
-using Domain.Categories.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,11 +11,6 @@ internal sealed class CategoryConfig : IEntityTypeConfiguration<Category>
         builder.ToTable("Categories", Schemas.Category);
 
         builder.HasKey(c => c.Id);
-
-        builder.Property(c => c.Id)
-            .HasConversion(
-                categoryId => categoryId.Value,
-                value => CategoryId.Create(value));
 
         builder.HasMany(c => c.Subcategories)
             .WithOne(c => c.ParentCategory)

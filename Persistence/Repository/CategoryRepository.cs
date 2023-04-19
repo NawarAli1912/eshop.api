@@ -15,7 +15,7 @@ internal class CategoryRepository : ICategoryRepository
     public async Task<bool> ExistsAsync(List<CategoryId> categoryIds)
     {
         var missingCategories = await _context.Categories
-                            .Where(c => categoryIds.Contains(c.Id) == false)
+                            .Where(c => categoryIds.Contains(CategoryId.Create(c.Id)) == false)
                             .ToListAsync();
 
         return !missingCategories.Any();

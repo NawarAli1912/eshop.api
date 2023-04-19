@@ -9,7 +9,7 @@ using System.Collections.Immutable;
 
 namespace Domain.Orders;
 
-public class Order : AggregateRoot<OrderId, Guid>
+public class Order : AggregateRoot<Guid>
 {
     private readonly HashSet<LineItem> _lineItems = new();
 
@@ -28,7 +28,7 @@ public class Order : AggregateRoot<OrderId, Guid>
         var lineItem = LineItem.Create(
             LineItemId.CreateNew(),
             this,
-            (ProductId)product.Id,
+            ProductId.Create(product.Id),
             product.Price,
             quantity);
 
@@ -37,17 +37,17 @@ public class Order : AggregateRoot<OrderId, Guid>
 
     public bool RemoveProduct(Product product)
     {
-        if (!_lineItems.Any(p => p.ProductId == product.Id))
+        if (!_lineItems.Any(p => p.Id == product.Id))
         {
             return false;
         }
 
-        _lineItems.RemoveWhere(li => li.ProductId == product.Id);
+        _lineItems.RemoveWhere(li => li.Id == product.Id);
 
         return true;
     }
 
-    private Order(OrderId id, CustomerId customerId) : base(id)
+    private Order(OrderId id, CustomerId customerId) : base(id.Value)
     {
         CustomerId = customerId;
         Status = OrderStatus.Pending;

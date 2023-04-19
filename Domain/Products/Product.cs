@@ -7,7 +7,7 @@ using Domain.SharedKernel.ValueObjects;
 
 namespace Domain.Products;
 
-public class Product : AggregateRoot<ProductId, Guid>
+public class Product : AggregateRoot<Guid>
 {
     private readonly HashSet<CategoryId> _categoryIds = new();
 
@@ -36,7 +36,7 @@ public class Product : AggregateRoot<ProductId, Guid>
         int quantity,
         SKU sku,
         Money price,
-        AverageRating averageRating) : base(id)
+        AverageRating averageRating) : base(id.Value)
     {
         Name = name;
         Description = description;

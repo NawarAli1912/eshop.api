@@ -1,9 +1,9 @@
 ﻿using Domain.SharedKernel.Primitives;
 
 namespace Domain.Products.ValueObjects;
-public sealed class ProductId : AggregateRootId<Guid>
+public sealed class ProductId : ValueObject
 {
-    public override Guid Value { get; protected set; }
+    public Guid Value { get; private set; }
 
     private ProductId()
     {
@@ -23,6 +23,11 @@ public sealed class ProductId : AggregateRootId<Guid>
     public static ProductId Create(Guid id)
     {
         return new ProductId(id);
+    }
+
+    public static ProductId Create(string id)
+    {
+        return new ProductId(new Guid(id));
     }
 
     public override IEnumerable<object> GetEqualityComponents()

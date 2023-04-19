@@ -1,7 +1,6 @@
 ﻿using Domain.Customers.ValueObjects;
 using Domain.Orders;
 using Domain.Orders.Entities;
-using Domain.Orders.ValueObjects;
 using Domain.Products.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -16,12 +15,6 @@ internal sealed class OrderConfig : IEntityTypeConfiguration<Order>
 
         builder
             .HasKey(o => o.Id);
-
-        builder
-            .Property(o => o.Id)
-            .HasConversion(
-                orderId => orderId.Value,
-                value => OrderId.Create(value));
 
         builder
             .Property(o => o.CustomerId)
@@ -44,12 +37,6 @@ internal sealed class LineItemConfiguration : IEntityTypeConfiguration<LineItem>
 
         builder
             .HasKey(li => li.Id);
-
-        builder
-            .Property(li => li.Id)
-            .HasConversion(
-                lineItemId => lineItemId.Value,
-                value => LineItemId.Create(value));
 
         builder
             .Property(li => li.ProductId)

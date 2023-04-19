@@ -24,40 +24,36 @@ internal class CreateProductCommandHandler : IRequestHandler<CreateProductComman
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        List<Error> errors = new();
-
-        var sku = SKU.Create(request.SKU);
-
-        if (sku.IsError)
+        var skuResult = SKU.Create(request.SKU);
+        if (skuResult.IsError)
         {
-            errors.AddRange(sku.Errors);
-
+            return skuResult.Errors;
         }
 
-        var CategoryExists = await _unitOfWork.CategoryRepository.ExistsAsync(request.CategoryIds.Select(c => CategoryId.Create(c)).ToList()).ConfigureAwait(false);
+        var CategoryExists = await _unitOfWork
+                            .CategoryRepository
+                            .ExistsAsync(request.CategoryIds.Select(c => CategoryId.Create(c)).ToList())
+                            .ConfigureAwait(false);
 
         if (!CategoryExists)
         {
-            errors.Add(Errors.Category.NotExists);
-        }
-
-        if (errors.Count > 0)
-        {
-            return errors;
+            return Errors.Category.NotExists;
         }
 
         var product = Product.Create(
                         ProductId.CreateNew(),
                         request.Name,
-                        "",
+                        request.Description,
                         request.Quantity,
-                        sku.Value,
+                        skuResult.Value,
                         Money.Create(request.Price, Currency.USD));
 
 
         _unitOfWork.ProductRepository.Add(product);
 
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork
+                .CommitAsync()
+                .ConfigureAwait(false);
 
         return product;
     }

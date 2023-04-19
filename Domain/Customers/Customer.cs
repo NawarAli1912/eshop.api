@@ -4,7 +4,7 @@ using Domain.SharedKernel.Primitives;
 
 namespace Domain.Customers;
 
-public class Customer : AggregateRoot<CustomerId, Guid>
+public class Customer : AggregateRoot<Guid>
 {
     public string Email { get; private set; } = string.Empty;
 
@@ -21,7 +21,7 @@ public class Customer : AggregateRoot<CustomerId, Guid>
         string email,
         string firstName,
         string lastName,
-        string? profilePicture) : base(id)
+        string? profilePicture) : base(id.Value)
     {
         Email = email;
         FirstName = firstName;

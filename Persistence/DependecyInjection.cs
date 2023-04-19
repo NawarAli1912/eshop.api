@@ -1,10 +1,17 @@
-﻿using Domain.SharedKernel.Abstraction;
+﻿using Domain.Categories.Abstraction.Repository;
+using Domain.Customers.Abstraction.Repository;
+using Domain.Orders.Abstraction.Repository;
+using Domain.Products.Abstraction.Repository;
+using Domain.SharedKernel.Abstraction;
 using Domain.SharedKernel.Abstraction.ElasticTypes;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Nest;
 using Persistence.Interceptors;
+using Persistence.Repository;
 
 namespace Persistence;
 
@@ -15,7 +22,16 @@ public static class DependecyInjection
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration config)
     {
 
-        services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
+        services.AddScoped<ProductRepository>();
+        services.AddScoped<IProductRepository, CachedProductRepository>();
+
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.TryAdd(ServiceDescriptor.Singleton<IMemoryCache, MemoryCache>());
 
         services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
@@ -25,7 +41,7 @@ public static class DependecyInjection
                 .AddInterceptors(interceptor!);
         });
 
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddSingleton<ConvertDomainEventsToOutboxMessagesInterceptor>();
 
         services.AddElasticSearch(config);
 

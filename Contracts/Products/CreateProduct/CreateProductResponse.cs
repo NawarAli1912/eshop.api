@@ -1,4 +1,4 @@
-﻿namespace Contracts.Products;
+﻿namespace Contracts.Products.CreateProduct;
 
 public record CreateProductResponse(
         string Id,
@@ -6,5 +6,4 @@ public record CreateProductResponse(
         int Quantity,
         string SKU,
         decimal Price,
-        string Currency,
-        List<string> Categories);
+        string Currency);

@@ -12,6 +12,8 @@ namespace Infrastructure.BackgroundJobs;
 [DisallowConcurrentExecution]
 public class ProcessOutboxMessagesJob : IJob
 {
+    private const int MaxRetries = 5;
+
     private readonly ApplicationDbContext _dbContext;
     private readonly IPublisher _publisher;
     private readonly ILogger<ProcessOutboxMessagesJob> _logger;
@@ -28,9 +30,10 @@ public class ProcessOutboxMessagesJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        var messages = await
+        List<OutboxMessage> messages = await
                 _dbContext.Set<OutboxMessage>()
                 .Where(m => m.ProcessedOnUtc == null)
+                .OrderByDescending(m => m.OccurredOnUtc)
                 .Take(20)
                 .ToListAsync(context.CancellationToken);
 
@@ -50,14 +53,17 @@ public class ProcessOutboxMessagesJob : IJob
             try
             {
                 await _publisher.Publish(domainEvent, context.CancellationToken);
+                message.ProcessedOnUtc = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to process domain event {message.Type}");
-                message.Error = ex.Message.ToString();
+                message.RetryCount++;
+                if (message.RetryCount >= MaxRetries)
+                {
+                    message.Error = ex.Message.ToString();
+                }
             }
-
-            message.ProcessedOnUtc = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();
         }

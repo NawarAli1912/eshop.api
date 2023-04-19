@@ -1,9 +1,7 @@
 ﻿namespace Domain.SharedKernel.Primitives;
-public abstract class AggregateRoot<TId, TIdType> : Entity<TId>, IAggregateRoot
-    where TId : AggregateRootId<TIdType>
+public abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot
+    where TId : notnull
 {
-    public new AggregateRootId<TIdType> Id { get; protected set; }
-
     public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.ToList();
 
     private readonly List<IDomainEvent> _domainEvents = new();
