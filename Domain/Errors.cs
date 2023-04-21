@@ -7,6 +7,9 @@ public class Errors
     {
         public static Error NotExists =>
                 Error.NotFound("Product.NotExists", "Requested product doesn't exists.");
+
+        public static Error FailedToAddCategory =>
+                Error.Failure("Product.CategorizeFailed", "Failed to categorize the product.");
     }
 
     public static class Category

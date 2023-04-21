@@ -5,7 +5,6 @@ using Domain.Orders.ValueObjects;
 using Domain.Products;
 using Domain.Products.ValueObjects;
 using Domain.SharedKernel.Primitives;
-using System.Collections.Immutable;
 
 namespace Domain.Orders;
 
@@ -21,7 +20,7 @@ public class Order : AggregateRoot<Guid>
 
     public DateTime ModifiedAt { get; set; }
 
-    public IImmutableSet<LineItem> LineItems => _lineItems.ToImmutableHashSet();
+    public IReadOnlySet<LineItem> LineItems => _lineItems.ToHashSet();
 
     public void AddProduct(Product product, int quantity = 1)
     {

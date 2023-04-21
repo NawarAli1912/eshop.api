@@ -19,12 +19,27 @@ public class ProductRepository : IProductRepository
         _context.Products.Add(product);
     }
 
+    public Task<List<Product>> GetAllAsync(
+        int pageIndex,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        return _context
+                .Products
+                .Include(p => p.Reviews)
+                .Include(p => p.CategoryIds)
+                .OrderByDescending(p => p.AverageRating.Value)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize + 1)
+                .ToListAsync(cancellationToken);
+    }
+
     public Task<Product?> GetAsync(ProductId productId, CancellationToken c)
     {
         return _context
                 .Products
                 .Include(p => p.Reviews)
                 .Include(p => p.CategoryIds)
-                .FirstOrDefaultAsync(p => p.Id == productId.Value);
+                .FirstOrDefaultAsync(p => p.Id == productId.Value, c);
     }
 }

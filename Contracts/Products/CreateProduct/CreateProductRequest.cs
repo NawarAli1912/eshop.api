@@ -1,4 +1,6 @@
-﻿namespace Contracts.Products.CreateProduct;
+﻿using Application.Products.CreateProduct;
+
+namespace Contracts.Products.CreateProduct;
 
 public record CreateProductRequest(
     string Name,
@@ -7,4 +9,17 @@ public record CreateProductRequest(
     string SKU,
     decimal Price,
     string Currency,
-    List<string>? CategoryIds);
+    List<string>? CategoryIds)
+{
+    public CreateProductCommand CreateCommand()
+    {
+        return new CreateProductCommand(
+                Name,
+                Description,
+                Quantity,
+                SKU,
+                Price,
+                Currency,
+                CategoryIds is null ? Enumerable.Empty<string>() : CategoryIds);
+    }
+};

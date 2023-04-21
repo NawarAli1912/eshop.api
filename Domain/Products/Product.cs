@@ -94,6 +94,32 @@ public class Product : AggregateRoot<Guid>
         return false;
     }
 
+    public bool AddCategories(IEnumerable<CategoryId> categoriesIds)
+    {
+        foreach (var item in categoriesIds)
+        {
+            if (!AddCateogry(item))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool RemoveCategories(IEnumerable<CategoryId> categoriesIds)
+    {
+        foreach (var item in categoriesIds)
+        {
+            if (!RemoveCategory(item))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public void AddRating(int rating)
     {
         AverageRating.AddRating(rating);

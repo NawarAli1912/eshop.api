@@ -11,4 +11,4 @@ public record CreateProductCommand(
     string SKU,
     decimal Price,
     string Currency,
-    List<string> CategoryIds) : IRequest<Result<Product>>;
+    IEnumerable<string> CategoryIds) : IRequest<Result<Product>>;

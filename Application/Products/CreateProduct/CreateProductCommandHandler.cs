@@ -22,6 +22,7 @@ internal class CreateProductCommandHandler : IRequestHandler<CreateProductComman
     public async Task<Result<Product>> Handle(CreateProductCommand request,
             CancellationToken cancellationToken)
     {
+
         ArgumentNullException.ThrowIfNull(request);
 
         var skuResult = SKU.Create(request.SKU);

@@ -38,7 +38,6 @@ public sealed class ConvertDomainEventsToOutboxMessagesInterceptor
                 {
                     TypeNameHandling = TypeNameHandling.All
                 })
-
             })
             .ToList();
 

@@ -8,9 +8,14 @@ namespace eshop.api.Common.Controllers;
 
 public class ApiController : ControllerBase
 {
-    protected ApiController(ISender mediator) => Mediator = mediator;
+    protected ApiController(ISender mediator, IHttpContextAccessor httpContextAccessor)
+    {
+        Mediator = mediator;
+        HttpContextAccessor = httpContextAccessor;
+    }
 
     protected ISender Mediator { get; }
+    protected IHttpContextAccessor HttpContextAccessor { get; }
 
     protected IActionResult Problem(List<Error> errors)
     {
@@ -34,7 +39,7 @@ public class ApiController : ControllerBase
     {
         var statusCode = error.Type switch
         {
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
+            ErrorType.Validation or ErrorType.Failure => StatusCodes.Status400BadRequest,
             ErrorType.NotFound => StatusCodes.Status404NotFound,
             ErrorType.Conflict => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status500InternalServerError

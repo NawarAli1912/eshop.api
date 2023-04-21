@@ -13,7 +13,9 @@ namespace Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20230417021508_test")]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     partial class test
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

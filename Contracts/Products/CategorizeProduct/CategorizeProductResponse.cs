@@ -1,20 +1,18 @@
 ﻿using Domain.Products;
 
-namespace Contracts.Products.GetProduct;
-
-public record GetProductResponse(
+namespace Contracts.Products.CategorizeProduct;
+public record CategorizeProductResponse(
     string Id,
     string Name,
     string Description,
     int Quantity,
     string SKU,
     decimal Price,
-    double Rating,
-    List<string> Reviews,
-    List<string> CategoriesIds
-    )
+    string Currency,
+    List<string>? CategoryIds)
 {
-    public static GetProductResponse Create(Product product)
+
+    public static CategorizeProductResponse Create(Product product)
     {
         return new(
             product.Id.ToString(),
@@ -23,8 +21,7 @@ public record GetProductResponse(
             product.Quantity,
             product.SKU.Value,
             product.Price.Amount,
-            product.AverageRating.Value,
-            product.Reviews.Select(r => r.Comment).ToList(),
+            product.Price.Currency.ToString(),
             product.CategoryIds.Select(c => c.Value.ToString()).ToList());
     }
 };

@@ -1,0 +1,19 @@
+@hostname = localhost
+@prot = 7101
+@host = {{hostname}}:{{prot}}/api
+@contentType = application/json
+
+POST https://{{hostname}}/products
+Content-Type:{{contentType}}
+
+{
+  "name": "string",
+  "description": "string",
+  "quantity": 0,
+  "sku": "string",
+  "price": 0,
+  "currency": "string",
+  "categoryIds": [
+    "string"
+  ]
+}

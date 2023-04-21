@@ -10,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 {
 
     builder.Services.AddSingleton<ProblemDetailsFactory, EShopProblemDetailsFactory>();
+    builder.Services.AddHttpContextAccessor();
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
